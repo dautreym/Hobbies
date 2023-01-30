@@ -4,13 +4,14 @@ File for Rune Age's RDSD - Résurgence du Seigneur Dragon
 
 import random
 
-# TODO : changer les You en player.name
-# TODO : allow player.name customization
-# TODO : implémenter une fonction dans la classe Game qui permet de
-# choisir un joueur et renvoie l'indice de ce joueur dans la liste des players
-# TODO : quand un item de récompense pop OU qu'un ennemi attaque,
-# donner la récompense / faire attaquer l'ennemi sur un joueur au choix
-# TODO : donner la possibilité de faire un display_hand_all à créer avant ce choix
+
+# TODO : add Cataclysm scenario mode
+# Currently Enemies either attack a specific player or all players
+# Feature where players can choose which player will defend against an Enemy
+# has been implemented but has not been tested yet
+# It can be used in Cataclysm
+
+# TODO : add graphics !!
 
 
 class GoldCard:
@@ -69,7 +70,7 @@ class Player:
 
         self.hand.append(self.deck.pop())
 
-        print("\nYou just have drawn following card :")
+        print("\n", self.name, " has just drawn following card :")
         print(self.hand[-1], "\n")
 
     def discard_a_card(self, must_display_hand=True):
@@ -1446,6 +1447,24 @@ class Player:
             self.game.final_boss.life_points,
         )
 
+    def change_name(self):
+        print("\n", self.name, " wants to change name !")
+        print(
+            "Note that you cannot rename yourself 99.\nTo cancel, enter 99 in next input."
+        )
+        print(
+            "Also, note that the next input will be taken as is. "
+            + "Although most inputs are safe, it is your responsibility "
+            + "not to break the game with a bad input."
+        )
+        print("\nHow do you want to rename yourself ?\n")
+
+        new_name = str(input("\n> "))
+
+        self.name = new_name
+
+        print("\nFrom now on, your new name will be", self.name, "!\n")
+
     def begin_turn(self):
         self.influence_points = (
             self.personal_cities_acquired
@@ -1478,6 +1497,7 @@ class Player:
             print("No, you can't attack another player in this mode !")
             print("11 :\tDisplay graveyard")
             print("12 :\tEnd turn")
+            print("20 :\tChange your Player's name")
 
             print(
                 "\nIF YOU KNOW WHAT YOU ARE DOING AND IF YOU ARE NOT CHEATING, "
@@ -1561,6 +1581,10 @@ class Player:
 
             elif answer_tmp == "19":
                 self.smite_final_boss()
+                self.play_a_turn()
+
+            elif answer_tmp == "20":
+                self.change_name()
                 self.play_a_turn()
 
     def end_turn(self):
@@ -2467,6 +2491,48 @@ class Game:
         while None in self.players:
             self.players.pop(self.players.index(None))
 
+    def display_all_hands(self):
+        for player_tmp in self.players:
+            if len(player_tmp.hand) > 0:
+                print("\nHere is ", player_tmp.name, "'s hand :")
+                for index_card in range(len(self.hand)):
+                    print(player_tmp.hand[index_card].name, " = ", index_card)
+            else:
+                print("\n", player_tmp.name, "'s hand is empty.")
+
+            print("\n")
+
+    def choose_a_player(
+        self, must_use_default_string=True, list_of_strings_to_use_instead=None
+    ):
+        # lists_of_strings_to_use_instead must be a list of two strings
+        # first one is a global message to print beforehand
+        # second one is the messgae to print right before the str input
+        print(
+            "\nPlease choose one player among all game's players : "
+            if must_use_default_string
+            else string_to_use_instead[0]
+        )
+        list_of_possibilities = []
+        for index_player_tmp in self.players:
+            print(
+                self.players[index_player_tmp].name,
+                " = ",
+                index_player_tmp,
+            )
+            list_of_possibilities.append(str(index_player_tmp))
+
+        print(
+            "\nWhich player do you want to choose ?"
+            if must_use_default_string
+            else list_of_strings_to_use_instead[1]
+        )
+        answer_tmp = str(input("\n> "))
+        while answer_tmp not in list_of_possibilities:
+            answer_tmp = str(input("\n> "))
+
+        return int(answer_tmp)
+
     def play_game(self):
         is_game_finished = False
         while not is_game_finished:
@@ -2528,7 +2594,16 @@ class Game:
                     self.defeated_enemies.append(spawned_enemy_tmp)
 
                 elif spawned_enemy_tmp.name == "Rallier des Soutiens":
-                    self.players[0].rewards.append(spawned_enemy_tmp)
+                    print(
+                        "\nChosen player will receive the Rallier des Soutiens Reward card."
+                    )
+                    print(
+                        "This card gives one additional Gold point per turn to this player.\n"
+                    )
+
+                    index_chosen_player = self.choose_a_player()
+                    self.players[index_chosen_player].rewards.append(spawned_enemy_tmp)
+                    print("\n")
 
                 elif spawned_enemy_tmp.name == "Seigneur Dragon Baraxis":
                     for player_tmp in self.players:
