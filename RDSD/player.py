@@ -1048,6 +1048,13 @@ class Player:
                     )
                     print(list_of_played_cards[-1])
 
+                    if list_of_played_cards[-1].name == "Démon":
+                        print(
+                            "\nDEBUG : Démon : ",
+                            list_of_played_cards[-1].is_destroyable,
+                            list_of_played_cards[-1].is_a_neutral_unit,
+                        )
+
                     if list_of_played_cards[-1].effect_type == "When played":
                         if isinstance(list_of_played_cards[-1], GuerrierRoc):
                             list_of_played_cards[-1].apply_effect(
@@ -1116,12 +1123,22 @@ class Player:
                 # only destroy destroyable units
                 nb_destroyable_units = 0
                 for card_tmp in list_of_played_cards:
+                    print("\nDEBUG : ", card_tmp.name, card_tmp.is_destroyable)
+
                     if card_tmp.is_destroyable:
                         nb_destroyable_units += 1
+
+                print("\nDEBUG : nb destroyable units : ", nb_destroyable_units)
+                print("\nDEBUG : nb units to kill : ", nb_of_units_to_kill)
 
                 # we cannot destroy more units than the number of destroyable units
                 if nb_destroyable_units < nb_of_units_to_kill:
                     nb_of_units_to_kill = nb_destroyable_units
+
+                print(
+                    "\nDEBUG : nb units to kill after modification : ",
+                    nb_of_units_to_kill,
+                )
 
                 index_enemy_to_kill = 0
                 while index_enemy_to_kill < nb_of_units_to_kill:
@@ -1513,7 +1530,7 @@ class Player:
 
             print("\nWhat do you want to do ?")
             answer_tmp = str(input("\n> "))
-            while not answer_tmp in [str(index_tmp) for index_tmp in range(19)]:
+            while not answer_tmp in [str(index_tmp) for index_tmp in range(21)]:
                 answer_tmp = str(input("\n> "))
             print("\n\n")
 
@@ -1746,7 +1763,7 @@ class Unit:
         strength_given,
         cost_given,
         is_destroyable_given=True,
-        is_a_central_unit_given=False,
+        is_a_neutral_unit_given=False,
     ):
         self.name = name_given
         self.initial_strength = strength_given
@@ -1754,7 +1771,21 @@ class Unit:
         self.cost = cost_given
         self.effect_type = "None"
         self.is_destroyable = is_destroyable_given
-        self.is_a_central_unit = is_a_central_unit_given
+        self.is_a_neutral_unit = is_a_neutral_unit_given
+
+        if self.name == "Démon":
+            print(
+                "\nDEBUG : Démon INIT : is destroyable : ",
+                self.is_destroyable,
+                is_destroyable_given,
+                "\n",
+            )
+            print(
+                "\nDEBUG : Démon INIT : is a Neutral Unit : ",
+                self.is_a_neutral_unit,
+                is_a_neutral_unit_given,
+                "\n",
+            )
 
     def __str__(self):
         return (
@@ -2211,9 +2242,10 @@ class Game:
         self.nb_available_spell_cards = [
             self.nb_neutral_cards_per_card_type for _ in self.available_spell_cards
         ]
+        print("\nDEBUG : CREATING ALL DEMONS HERE !!")
         self.available_neutral_units = [
             Unit(
-                "Démon", 5, 6, is_destroyable_given=False, is_a_central_unit_given=True
+                "Démon", 5, 6, is_destroyable_given=False, is_a_neutral_unit_given=True
             )
         ]
         self.nb_available_neutral_units = [
@@ -2514,7 +2546,7 @@ class Game:
             else string_to_use_instead[0]
         )
         list_of_possibilities = []
-        for index_player_tmp in self.players:
+        for index_player_tmp in range(len(self.players)):
             print(
                 self.players[index_player_tmp].name,
                 " = ",
