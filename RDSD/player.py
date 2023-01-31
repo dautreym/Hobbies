@@ -443,6 +443,8 @@ class Player:
                                 unit_to_append_tmp.name,
                                 unit_to_append_tmp.strength,
                                 unit_to_append_tmp.cost,
+                                is_destroyable_given=unit_to_append_tmp.is_destroyable,
+                                is_a_neutral_unit_given=unit_to_append_tmp.is_a_neutral_unit,
                             )
 
                         print(
@@ -530,9 +532,11 @@ class Player:
 
                     else:
                         unit_to_append = Unit(
-                            unit_to_append_tmp.name,
-                            unit_to_append_tmp.strength,
-                            unit_to_append_tmp.cost,
+                            unit_to_append.name,
+                            unit_to_append.strength,
+                            unit_to_append.cost,
+                            is_destroyable_given=unit_to_append.is_destroyable,
+                            is_a_neutral_unit_given=unit_to_append.is_a_neutral_unit,
                         )
 
                     print(
@@ -648,6 +652,8 @@ class Player:
                                 neutral_card_to_buy.name,
                                 neutral_card_to_buy.strength,
                                 neutral_card_to_buy.cost,
+                                is_destroyable_given=neutral_card_to_buy.is_destroyable,
+                                is_a_neutral_unit_given=neutral_card_to_buy.is_a_neutral_unit,
                             )
                         )
 
@@ -1048,13 +1054,6 @@ class Player:
                     )
                     print(list_of_played_cards[-1])
 
-                    if list_of_played_cards[-1].name == "Démon":
-                        print(
-                            "\nDEBUG : Démon : ",
-                            list_of_played_cards[-1].is_destroyable,
-                            list_of_played_cards[-1].is_a_neutral_unit,
-                        )
-
                     if list_of_played_cards[-1].effect_type == "When played":
                         if isinstance(list_of_played_cards[-1], GuerrierRoc):
                             list_of_played_cards[-1].apply_effect(
@@ -1123,22 +1122,20 @@ class Player:
                 # only destroy destroyable units
                 nb_destroyable_units = 0
                 for card_tmp in list_of_played_cards:
-                    print("\nDEBUG : ", card_tmp.name, card_tmp.is_destroyable)
-
                     if card_tmp.is_destroyable:
                         nb_destroyable_units += 1
 
-                print("\nDEBUG : nb destroyable units : ", nb_destroyable_units)
-                print("\nDEBUG : nb units to kill : ", nb_of_units_to_kill)
+                # print("\nDEBUG : nb destroyable units : ", nb_destroyable_units)
+                # print("\nDEBUG : nb units to kill : ", nb_of_units_to_kill)
 
                 # we cannot destroy more units than the number of destroyable units
                 if nb_destroyable_units < nb_of_units_to_kill:
                     nb_of_units_to_kill = nb_destroyable_units
 
-                print(
-                    "\nDEBUG : nb units to kill after modification : ",
-                    nb_of_units_to_kill,
-                )
+                # print(
+                #     "\nDEBUG : nb units to kill after modification : ",
+                #     nb_of_units_to_kill,
+                # )
 
                 index_enemy_to_kill = 0
                 while index_enemy_to_kill < nb_of_units_to_kill:
@@ -1773,20 +1770,6 @@ class Unit:
         self.is_destroyable = is_destroyable_given
         self.is_a_neutral_unit = is_a_neutral_unit_given
 
-        if self.name == "Démon":
-            print(
-                "\nDEBUG : Démon INIT : is destroyable : ",
-                self.is_destroyable,
-                is_destroyable_given,
-                "\n",
-            )
-            print(
-                "\nDEBUG : Démon INIT : is a Neutral Unit : ",
-                self.is_a_neutral_unit,
-                is_a_neutral_unit_given,
-                "\n",
-            )
-
     def __str__(self):
         return (
             self.name
@@ -2242,7 +2225,6 @@ class Game:
         self.nb_available_spell_cards = [
             self.nb_neutral_cards_per_card_type for _ in self.available_spell_cards
         ]
-        print("\nDEBUG : CREATING ALL DEMONS HERE !!")
         self.available_neutral_units = [
             Unit(
                 "Démon", 5, 6, is_destroyable_given=False, is_a_neutral_unit_given=True
