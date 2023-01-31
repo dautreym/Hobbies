@@ -13,6 +13,12 @@ import random
 
 # TODO : add graphics !!
 
+# TODO : add possibility to cancel when inputing for units
+# after starting a fight !! (neutral city / enemies)
+# OR make it more clear that we have to play spell card when asked for Unit and cancel
+
+# TODO : when attacked, réafficher la main du joueur attaqué juste après le defend yourself !
+
 
 class GoldCard:
     def __init__(
@@ -2471,7 +2477,7 @@ class Game:
         else:
             player_2 = None
 
-        if "Undeads Duelllist" in list_of_player_names:
+        if "Undeads Duellist" in list_of_player_names:
             # name_given, strength_given, cost_given
             unit_1 = Ranime()
             unit_2 = Unit("Archer Squelette", 2, 2)
@@ -2504,6 +2510,8 @@ class Game:
         self.players = [player_0, player_1, player_2, player_3]
         while None in self.players:
             self.players.pop(self.players.index(None))
+
+        print("\nPlayers : ", [player_tmp.name for player_tmp in self.players])
 
     def display_all_hands(self):
         for player_tmp in self.players:
@@ -2740,7 +2748,7 @@ def forced_march(player):
 
 
 def play():
-    game = Game(["Orcs Duellist", "Humen Duellist"])
+    game = Game(["Orcs Duellist", "Undeads Duellist"])
 
     game.play_game()
 
